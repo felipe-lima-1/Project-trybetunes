@@ -1,13 +1,30 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
+import searchAlbumsAPI from '../services/searchAlbumsAPI';
 
 class Search extends React.Component {
   state = {
-    artistName: '',
+    artista: '',
+    name: '',
+    album: [],
+  };
+
+  handleClick = () => {
+    const { artista } = this.state;
+    const teste = async () => {
+      const album = await searchAlbumsAPI(artista);
+      this.setState({
+        name: artista,
+        album,
+        artista: '',
+      });
+    };
+    teste();
   };
 
   render() {
-    const { artistName } = this.state;
+    const { artista, name, album } = this.state;
     const minLength = 2;
     return (
       <div data-testid="page-search">
@@ -17,15 +34,45 @@ class Search extends React.Component {
           <input
             type="text"
             data-testid="search-artist-input"
-            onChange={ ({ target }) => this.setState({ artistName: target.value }) }
+            value={ artista }
+            onChange={ ({ target }) => this.setState({ artista: target.value }) }
           />
           <button
             type="button"
             data-testid="search-artist-button"
-            disabled={ artistName.length < minLength }
+            disabled={ artista.length < minLength }
+            onClick={ this.handleClick }
           >
             Pesquisar
           </button>
+          {!album.length ? 'Nenhum álbum foi encontrado' : (
+            <div>
+              <h4>{`Resultado de álbuns de: ${name}`}</h4>
+              {album.map(({
+                artistName,
+                collectionId,
+                collectionName,
+                collectionPrice,
+                artworkUrl100,
+                releaseDate,
+                trackCount,
+              }) => (
+                <div key={ collectionId }>
+                  <img src={ artworkUrl100 } alt={ artistName } />
+                  <h2>{ artistName }</h2>
+                  <p>{ collectionPrice }</p>
+                  <p>{ trackCount }</p>
+                  <p>{ releaseDate }</p>
+                  <Link
+                    to={ `/album/${collectionId}` }
+                    data-testid={ `link-to-album-${collectionId}` }
+                  >
+                    { collectionName }
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
         </form>
       </div>
     );
