@@ -5,7 +5,7 @@ import { addSong } from '../services/favoriteSongsAPI';
 
 class MusicCard extends React.Component {
   state = {
-    checked: false,
+    checkedSong: false,
     loading: false,
   };
 
@@ -14,12 +14,12 @@ class MusicCard extends React.Component {
     const track = obj.find((element) => element.trackId === value);
     this.setState({ loading: true });
     await addSong(track);
-    this.setState({ loading: false, checked: true });
+    this.setState({ loading: false, checkedSong: true });
   };
 
   render() {
-    const { trackName, previewUrl, trackId } = this.props;
-    const { checked, loading } = this.state;
+    const { trackName, previewUrl, trackId, checked } = this.props;
+    const { checkedSong, loading } = this.state;
     return (
       <div>
         {
@@ -38,7 +38,7 @@ class MusicCard extends React.Component {
                   type="checkbox"
                   id={ trackId }
                   data-testid={ `checkbox-music-${trackId}` }
-                  checked={ checked }
+                  checked={ checked || checkedSong }
                   onChange={ this.click }
                 />
               </label>
@@ -54,6 +54,7 @@ MusicCard.propTypes = {
   previewUrl: PropTypes.string,
   trackId: PropTypes.string,
   obj: PropTypes.shape,
+  checked: PropTypes.bool,
 }.isRequired;
 
 export default MusicCard;
